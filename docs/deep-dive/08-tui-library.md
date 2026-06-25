@@ -23,7 +23,7 @@ interface Component {
 
 | 组件 | 文件 | 行 | 用途 |
 |------|------|-----|------|
-| `Editor` | `components/editor.ts` | 2307 | 多行输入编辑器（最大、最复杂） |
+| `Editor` | `components/editor.ts` | 1961 | 多行输入编辑器（最大、最复杂） |
 | `Markdown` | `components/markdown.ts` | 852 | Markdown 渲染 |
 | `Input` | `components/input.ts` | 447 | 单行输入 |
 | `SettingsList` | `components/settings-list.ts` | 250 | 设置列表 |
@@ -91,7 +91,7 @@ this.renderTimer = setTimeout(() => { ...; this.doRender(); }, delay);
 
 ## 3. 键盘输入：解析现代终端协议
 
-终端键盘输入是一团历史包袱——同一个"Ctrl+Shift+P"在不同终端/协议下编码完全不同。`keys.ts`（1400 行）把这团乱码解析成统一的 `KeyId`。
+终端键盘输入是一团历史包袱——同一个"Ctrl+Shift+P"在不同终端/协议下编码完全不同。`keys.ts`（1285 行）把这团乱码解析成统一的 `KeyId`。
 
 支持的协议（`keys.ts` 头部注释 5-15）：
 
@@ -132,9 +132,9 @@ flowchart LR
 
 ---
 
-## 5. 编辑器：2307 行的输入核心
+## 5. 编辑器：1961 行的输入核心
 
-`editor.ts`（2307 行，全库最大）是用户敲命令的多行编辑器。它要处理的远不止"插入字符"：
+`editor.ts`（1961 行）是用户敲命令的多行编辑器。它要处理的远不止"插入字符"：
 
 - 多行文本缓冲、换行、自动折行（配合 `utils.ts` 的 `wrapTextWithAnsi`/`visibleWidth`/`sliceByColumn`）；
 - 词导航（`word-navigation.ts`，117 行：按词跳/删）；
@@ -147,7 +147,7 @@ flowchart LR
 
 ### 文本宽度工具
 
-终端里"一个字符占几列"不等于"几个码点"——CJK 占 2 列、emoji 可能占 2 列、零宽字符占 0 列。`utils.ts`（1188 行）的 `visibleWidth`、`truncateToWidth`、`sliceByColumn`、`wrapTextWithAnsi`（`index.ts:114` 导出）解决这个问题，且能在含 ANSI 转义码的字符串上正确计算。所有涉及对齐、截断、折行的组件都依赖它们。
+终端里"一个字符占几列"不等于"几个码点"——CJK 占 2 列、emoji 可能占 2 列、零宽字符占 0 列。`utils.ts`（1053 行）的 `visibleWidth`、`truncateToWidth`、`sliceByColumn`、`wrapTextWithAnsi`（`index.ts:114` 导出）解决这个问题，且能在含 ANSI 转义码的字符串上正确计算。所有涉及对齐、截断、折行的组件都依赖它们。
 
 ---
 
@@ -190,10 +190,10 @@ graph LR
 
 | 文件 | 行数 | 职责 |
 |------|------|------|
-| `packages/tui/src/tui.ts` | 1714 | `Component`/`Container`/`TUI` + 差分渲染引擎 |
-| `packages/tui/src/components/editor.ts` | 2307 | 多行输入编辑器 |
-| `packages/tui/src/keys.ts` | 1400 | Kitty/CSI-u/modifyOtherKeys/legacy 按键解析 |
-| `packages/tui/src/utils.ts` | 1188 | 列宽/截断/折行（ANSI 感知） |
+| `packages/tui/src/tui.ts` | 1534 | `Component`/`Container`/`TUI` + 差分渲染引擎 |
+| `packages/tui/src/components/editor.ts` | 1961 | 多行输入编辑器 |
+| `packages/tui/src/keys.ts` | 1285 | Kitty/CSI-u/modifyOtherKeys/legacy 按键解析 |
+| `packages/tui/src/utils.ts` | 1053 | 列宽/截断/折行（ANSI 感知） |
 | `packages/tui/src/markdown.ts` | 852 | Markdown 终端渲染 |
 | `packages/tui/src/autocomplete.ts` | 786 | 自动补全引擎 |
 | `packages/tui/src/terminal.ts` | 531 | 终端抽象 `ProcessTerminal` |

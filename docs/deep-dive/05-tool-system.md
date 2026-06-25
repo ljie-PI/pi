@@ -24,7 +24,7 @@ graph BT
 | 层 | 定义处 | 多了什么 |
 |----|--------|---------|
 | `Tool` | `pi-ai/types.ts:358` | LLM 看到的：name、description、parameters(JSON schema) |
-| `AgentTool` | `agent/types.ts:366-389` | 运行时执行：`execute(toolCallId, params, signal, onUpdate)`、`executionMode`、`label` |
+| `AgentTool` | `pi-agent-core/types.ts:366-389`（源码：`packages/agent/src/types.ts`） | 运行时执行：`execute(toolCallId, params, signal, onUpdate)`、`executionMode`、`label` |
 | `ToolDefinition` | `coding-agent/.../extensions/types.ts:435-484` | UI + 提示编排：`promptSnippet`、`promptGuidelines`、`renderCall`、`renderResult`、`prepareArguments`、`renderShell` |
 
 **为什么要三层？** 因为同一个"工具"在不同语境扮演不同角色：对 LLM 它是一段 schema；对循环它是一个可中止的异步函数；对终端 UI 它需要知道怎么画进度和结果、给系统提示贡献什么说明。`ToolDefinition`（定义在扩展类型里，因为扩展也能贡献工具）是 pi 内部的"完全体"，`AgentTool` 是喂给底层循环的"精简体"。
@@ -61,13 +61,13 @@ read · bash · edit · write · grep · find · ls
 
 | 工具 | 文件 | 行数 | 职责 | 关键约束 |
 |------|------|------|------|---------|
-| `read` | `read.ts` | 362 | 读文件（含图像，自动缩放） | 截断到 2000 行 / 50KB（`truncate.ts:11-12`） |
-| `bash` | `bash.ts` | 453 | 执行 shell 命令 | 可选超时（秒，无默认超时，`bash.ts:26`） |
-| `edit` | `edit.ts` | 437 | 精确字符串替换 | 配合 `edit-diff.ts`(560 行) 做 diff |
-| `write` | `write.ts` | 267 | 写整个文件 | 经文件互斥队列 |
-| `grep` | `grep.ts` | 385 | 内容搜索（ripgrep 风格） | 每行最长 500 字符（`truncate.ts:13`） |
-| `find` | `find.ts` | 367 | 文件名/路径匹配 | — |
-| `ls` | `ls.ts` | 225 | 列目录 | — |
+| `read` | `read.ts` | 332 | 读文件（含图像，自动缩放） | 截断到 2000 行 / 50KB（`truncate.ts:11-12`） |
+| `bash` | `bash.ts` | 418 | 执行 shell 命令 | 可选超时（秒，无默认超时，`bash.ts:26`） |
+| `edit` | `edit.ts` | 390 | 精确字符串替换 | 配合 `edit-diff.ts`(493 行) 做 diff |
+| `write` | `write.ts` | 65 | 写整个文件 | 经文件互斥队列 |
+| `grep` | `grep.ts` | 362 | 内容搜索（ripgrep 风格） | 每行最长 500 字符（`truncate.ts:13`） |
+| `find` | `find.ts` | 338 | 文件名/路径匹配 | — |
+| `ls` | `ls.ts` | 201 | 列目录 | — |
 
 > **激活 ≠ 存在**：7 个工具全都"存在"，但默认只**激活** 4 个：`["read","bash","edit","write"]`（`sdk.ts:244`）。grep/find/ls 默认关闭，可在会话中用 `setActiveToolsByName` 开启（第 3 节）。设计意图：模型常用 `bash` 内的 `rg`/`find`/`ls` 就够了，独立工具是可选增强，减少工具列表噪声。
 
@@ -123,19 +123,19 @@ flowchart LR
 
 ## 4. 执行流：从 toolCall 到 ToolResultMessage
 
-回顾第 03 章：`runLoop` 拿到带 `toolCall` 的 assistant 消息后调 `executeToolCalls`，对每个调用走"准备→执行→收尾"。`AgentTool.execute` 的签名（`agent/types.ts:376-383`）：
+回顾第 03 章：`runLoop` 拿到带 `toolCall` 的 assistant 消息后调 `executeToolCalls`，对每个调用走"准备→执行→收尾"。`AgentTool.execute` 的签名（`pi-agent-core/types.ts:376-383`，源码：`packages/agent/src/types.ts`）：
 
 ```
 execute(toolCallId, params, signal?, onUpdate?): Promise<AgentToolResult<TDetails>>
 ```
 
 - **`signal`**：每个工具都拿到 `AbortSignal`，用户中止时立即停。read 工具（`read.ts:216-260`）就监听 `signal` 的 `abort` 事件并 reject。
-- **`onUpdate`**（`AgentToolUpdateCallback`，`agent/types.ts:363`）：工具可推送中间进度，转成 `tool_execution_update` 事件让 UI 实时显示（如 bash 的流式输出）。
+- **`onUpdate`**（`AgentToolUpdateCallback`，`pi-agent-core/types.ts:363`）：工具可推送中间进度，转成 `tool_execution_update` 事件让 UI 实时显示（如 bash 的流式输出）。
 - **返回 `AgentToolResult<TDetails>`**：含 `content`（喂回模型的文本/图像）和 `details`（结构化数据，给 UI 渲染器用，不进模型上下文）。
 
 ### 执行模式：sequential vs parallel
 
-`executionMode`（`ToolExecutionMode = "sequential" | "parallel"`，`agent/types.ts:36`）控制一个工具能否与同批其它工具并发。默认由 `config.parallelToolCalls` 决定，单个工具可覆盖。例如写文件类工具往往标 `sequential` 以避免竞态。
+`executionMode`（`ToolExecutionMode = "sequential" | "parallel"`，`pi-agent-core/types.ts:36`）控制一个工具能否与同批其它工具并发。默认由 `config.toolExecution` 决定，单个工具可覆盖。例如写文件类工具往往标 `sequential` 以避免竞态。
 
 ### 文件互斥队列
 

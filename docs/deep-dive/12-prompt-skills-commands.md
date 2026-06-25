@@ -200,7 +200,7 @@ graph TB
 | `packages/coding-agent/src/core/skills.ts` | 487 | 技能加载/校验/`formatSkillsForPrompt` |
 | `packages/coding-agent/src/core/slash-commands.ts` | 41 | `BUILTIN_SLASH_COMMANDS`（22 个）+ 类型 |
 | `packages/coding-agent/src/core/prompt-templates.ts` | 284 | 用户自定义命令（.md 模板 + 参数替换） |
-| `packages/coding-agent/src/core/resource-loader.ts` | 1037 | 统一加载这些资源 |
+| `packages/coding-agent/src/core/resource-loader.ts` | 922 | 统一加载这些资源 |
 
 **关键事实**：系统提示中工具仅在有 `promptSnippet` 时出现（system-prompt.ts:91）；永久指南 "Be concise" + "Show file paths clearly"（system-prompt.ts:130-131）；内置斜杠命令 22 个（slash-commands.ts:18-41）；技能含 `SKILL.md` 的目录不再递归（skills.ts:164-166）。
 

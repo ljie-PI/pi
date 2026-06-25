@@ -19,7 +19,7 @@ graph TB
         types["types.ts<br/>AgentLoopConfig / AgentTool / AgentEvent"]
     end
     subgraph high["高层 API（电池全包）"]
-        harness["harness/agent-harness.ts<br/>class AgentHarness（1064 行）"]
+        harness["harness/agent-harness.ts<br/>class AgentHarness（998 行）"]
         sess["harness/session/*<br/>jsonl-repo / memory-repo"]
         comp["harness/compaction/*<br/>compaction / branch-summarization"]
         skills["harness/skills.ts / system-prompt.ts"]
@@ -103,10 +103,10 @@ flowchart TD
 
 ## 4. 工具执行：顺序 vs 并行
 
-`executeToolCalls`（第 373-393 行）按 `config.parallelToolCalls` 分派：
+`executeToolCalls`（第 373-388 行）按 `config.toolExecution` 和单个工具的 `executionMode` 分派：
 
-- `executeToolCallsSequential`（第 395-450 行）：逐个执行，任一 `terminate` 立即停。
-- `executeToolCallsParallel`（第 451-561 行）：并发执行，但**保留结果顺序**。
+- `executeToolCallsSequential`（第 395-449 行）：逐个执行，任一 `terminate` 立即停。
+- `executeToolCallsParallel`（第 451-516 行）：预检后并发执行允许并发的工具，并按 assistant 源顺序回灌结果消息。
 
 每个工具调用经过三段式（便于钩子介入）：
 
@@ -148,7 +148,7 @@ sequenceDiagram
 | 字段 | 行 | 作用 |
 |------|-----|------|
 | `tools` | (继承/扩展) | 可用工具集 |
-| `parallelToolCalls` | — | 顺序还是并行执行工具 |
+| `toolExecution` | 254 | 顺序还是并行执行工具（`"sequential" | "parallel"`，默认并行） |
 | `shouldStopAfterTurn` | 208 | 每轮后是否停（如检测到 stop 工具） |
 | `prepareNextTurn` | 215 | 每轮后换 model/thinking/context（压缩、模型切换） |
 | `getSteeringMessages` | 230 | 拉取用户中途插话 |
@@ -162,7 +162,7 @@ sequenceDiagram
 
 ## 6. Agent 类：状态、事件、生命周期
 
-`agent.ts`（557 行）的 `Agent` 类（第 166 行）给无状态的 `runLoop` 包上状态和事件总线：
+`agent.ts`（494 行）的 `Agent` 类（第 166 行）给无状态的 `runLoop` 包上状态和事件总线：
 
 - **构造**（第 205-206 行）：`streamFn = options.streamFn ?? streamSimple`，存 `getApiKey`。
 - **入口** `prompt()`（重载，第 325-337 行）：接受字符串 / `AgentMessage` / 数组，封成消息后 `runPromptMessages`（第 386 行）。
@@ -170,7 +170,7 @@ sequenceDiagram
 - **生命周期** `runWithLifecycle`（第 451 行）：建 AbortController、置 `isStreaming`、跑循环、`handleRunFailure`（第 476 行）兜底，最后 settle `agent_end` 监听器。
 - **事件分发** `processEvents`（第 509 行）：把 `runLoop` emit 的 `AgentEvent` 转发给注册的监听器（coding-agent 的 `AgentSession` 就在这里订阅持久化，见第 04 章）。
 
-### AgentEvent：12 种事件
+### AgentEvent：10 种事件
 
 `AgentEvent`（`types.ts:408-423`）是 Agent 对外的唯一可观测面，分四组：
 
@@ -216,7 +216,7 @@ graph LR
 
 ## 8. AgentHarness：另一条路（了解即可）
 
-`harness/agent-harness.ts`（1064 行）的 `AgentHarness`（第 174 行）是高层封装：内建 session repo（`jsonl-repo.ts` / `memory-repo.ts`）、压缩（`compaction/compaction.ts`，762 行）、分支摘要（`branch-summarization.ts`，262 行）、技能（`skills.ts`，375 行）、系统提示（`system-prompt.ts`）、运行环境抽象（`env/nodejs.ts`，550 行）。
+`harness/agent-harness.ts`（998 行）的 `AgentHarness`（第 174 行）是高层封装：内建 session repo（`jsonl-repo.ts` / `memory-repo.ts`）、压缩（`compaction/compaction.ts`，680 行）、分支摘要（`branch-summarization.ts`，229 行）、技能（`skills.ts`，337 行）、系统提示（`system-prompt.ts`）、运行环境抽象（`env/nodejs.ts`，504 行）。
 
 它和 coding-agent 的关系是**平行而非依赖**：coding-agent 借鉴了同样的概念（JSONL 会话、压缩、分支摘要），但实现在自己的 `core/` 下，功能更贴合交互式 CLI 的需求（分支树导航、标签、撤销）。`base.ts` 把 harness 的子模块也都 re-export 了（`compact`、`DEFAULT_COMPACTION_SETTINGS`、`generateBranchSummary` 等），所以第三方可单独取用。
 
@@ -234,8 +234,8 @@ graph LR
 | `packages/agent/src/base.ts` | 39 | 两层 API 的总 re-export 门面 |
 | `packages/agent/src/index.ts` | 5 | 入口（触发 provider 注册 + re-export base） |
 | `packages/agent/src/proxy.ts` | 367 | Agent 跨进程/跨边界代理 |
-| `packages/agent/src/harness/agent-harness.ts` | 1064 | 高层 `AgentHarness`（coding-agent 未用） |
-| `packages/agent/src/harness/compaction/compaction.ts` | 762 | harness 版上下文压缩 |
+| `packages/agent/src/harness/agent-harness.ts` | 998 | 高层 `AgentHarness`（coding-agent 未用） |
+| `packages/agent/src/harness/compaction/compaction.ts` | 680 | harness 版上下文压缩 |
 | `packages/agent/src/harness/types.ts` | 833 | harness 层类型 |
 
 ---

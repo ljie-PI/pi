@@ -55,7 +55,7 @@ interface ApiProvider<TApi, TOptions> {
 
 ## 2. 内置 Provider 与 API 映射
 
-内置 provider 在 `packages/ai/src/providers/register-builtins.ts`（282 行）**懒加载**注册（`createLazyApiProvider`，第 169-178 行；首次用到才动态 import 实现文件）。`registerBuiltInApiProviders()`（第 271-275 行）在模块加载时执行（第 282 行）。
+内置 provider 在 `packages/ai/src/providers/register-builtins.ts`（256 行）**懒加载**注册（`createLazyApiProvider`；首次用到才动态 import 实现文件）。`registerBuiltInApiProviders()` 在模块加载时执行。
 
 > 注意：`@earendil-works/pi-ai`（`index.ts`）会自动注册所有内置 provider；而 `@earendil-works/pi-ai/base`（`base.ts`）**不会**——这是 `pi-agent-core` 的 `index.ts:1-5` 特意区分的：它 import 完整入口以触发注册。
 
@@ -63,15 +63,15 @@ interface ApiProvider<TApi, TOptions> {
 
 | `api` 字符串 | 实现文件 | 行数 |
 |--------------|---------|------|
-| `anthropic-messages` | `anthropic.ts` | 1251 |
-| `openai-completions` | `openai-completions.ts` | 1262 |
-| `openai-responses` | `openai-responses.ts` | 318 |
-| `openai-codex-responses` | `openai-codex-responses.ts` | 1504 |
-| `azure-openai-responses` | `azure-openai-responses.ts` | 308 |
-| `mistral-conversations` | `mistral.ts` | 673 |
-| `google-generative-ai` | `google.ts` | 513 |
-| `google-vertex` | `google-vertex.ts` | 591 |
-| `bedrock-converse-stream` | `amazon-bedrock.ts`（经 `loadBedrockProviderModule()`） | 1070 |
+| `anthropic-messages` | `anthropic.ts` | 1151 |
+| `openai-completions` | `openai-completions.ts` | 1155 |
+| `openai-responses` | `openai-responses.ts` | 284 |
+| `openai-codex-responses` | `openai-codex-responses.ts` | 1348 |
+| `azure-openai-responses` | `azure-openai-responses.ts` | 267 |
+| `mistral-conversations` | `mistral.ts` | 602 |
+| `google-generative-ai` | `google.ts` | 468 |
+| `google-vertex` | `google-vertex.ts` | 537 |
+| `bedrock-converse-stream` | `amazon-bedrock.ts`（经 `loadBedrockProviderModule()`） | 976 |
 
 另有图像 API `openrouter-images` 由 `registerBuiltInImagesApiProviders()` 单独注册（`register-builtins.ts:267-269`）。
 
@@ -148,7 +148,7 @@ stateDiagram-v2
 
 ## 6. 模型注册表
 
-公开 API 在 `packages/ai/src/models.ts`（95 行），数据在生成文件 `models.generated.ts`（17179 行）。
+公开 API 在 `packages/ai/src/models.ts`（95 行），数据在生成文件 `models.generated.ts`（17177 行）。
 
 - 数据结构：`export const MODELS[provider][modelId] = Model<...>`（`models.generated.ts:6+`），每个条目含 `id`/`name`/`api`/`provider`/`baseUrl`/`reasoning`/`input`/`cost`/`contextWindow`/`maxTokens`。
 - 公开函数（`models.ts`）：`getModel(provider, modelId)`（20-26）、`getProviders()`（28-30）、`getModels(provider)`（32-37）、`calculateCost()`（39-49）、`getSupportedThinkingLevels()`（53-62）、`clampThinkingLevel()`（64-83）、`modelsAreEqual()`（89-95）。
@@ -206,9 +206,9 @@ stateDiagram-v2
 | `packages/ai/src/api-registry.ts` | 98 | provider 注册表与 `ApiProvider` 契约 |
 | `packages/ai/src/types.ts` | 628 | 全部核心类型（Message/Model/Tool/事件/compat） |
 | `packages/ai/src/providers/register-builtins.ts` | 282 | 内置 provider 懒加载注册 |
-| `packages/ai/src/providers/anthropic.ts` | 1251 | Anthropic Messages provider |
-| `packages/ai/src/providers/openai-completions.ts` | 1262 | OpenAI 兼容 Chat Completions provider |
-| `packages/ai/src/providers/openai-codex-responses.ts` | 1504 | OpenAI Codex Responses（含 WebSocket） |
+| `packages/ai/src/providers/anthropic.ts` | 1151 | Anthropic Messages provider |
+| `packages/ai/src/providers/openai-completions.ts` | 1155 | OpenAI 兼容 Chat Completions provider |
+| `packages/ai/src/providers/openai-codex-responses.ts` | 1348 | OpenAI Codex Responses（含 WebSocket） |
 | `packages/ai/src/providers/transform-messages.ts` | 220 | 跨 provider 消息归一化 |
 | `packages/ai/src/models.ts` | 95 | 模型注册表公开 API |
 | `packages/ai/src/utils/oauth/index.ts` | 160 | OAuth provider 注册表与刷新 |

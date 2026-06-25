@@ -12,10 +12,10 @@
 
 ```
 packages/*                                    # 4 个核心包
-packages/coding-agent/examples/extensions/*   # 5 个示例扩展（也是 workspace）
+packages/coding-agent/examples/extensions/... # 5 个示例扩展被列为 workspace
 ```
 
-四个核心包（第 01 章）+ 示例扩展（with-deps、custom-provider-anthropic、custom-provider-gitlab-duo、sandbox、gondolin）。把示例扩展也纳入 workspace，是为了让它们能解析 pi 的本地包、被 lint/typecheck 覆盖。
+四个核心包（第 01 章）+ 5 个被纳入 workspace 的示例扩展（with-deps、custom-provider-anthropic、custom-provider-gitlab-duo、sandbox、gondolin）。`examples/extensions/` 目录下还有其它示例（当前共 9 个目录），但只有这 5 个在根 `package.json` 中作为 workspace 参与本地包解析、lint/typecheck 覆盖。
 
 ```mermaid
 %%{init: {'theme': 'neutral'}}%%

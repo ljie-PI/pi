@@ -6,30 +6,30 @@
 
 ## A. 关键文件索引（按行数 Top 20）
 
-全仓 `packages/*/src` 共 **267** 个 `.ts` 文件。下面是最大的 20 个（复杂度集中处）：
+全仓 `packages/*/src` 共 **267** 个 `.ts` 文件。下面是最大的 20 个（含生成文件；判断手写复杂度时可跳过 `*.generated.ts`）：
 
 | 行数 | 文件 | 对应章节 |
 |------|------|---------|
-| 5731 | `coding-agent/src/modes/interactive/interactive-mode.ts` | 09 |
-| 3148 | `coding-agent/src/core/agent-session.ts` | 04 / 06 / 09 |
-| 2588 | `coding-agent/src/core/package-manager.ts` | 07 / 13 |
-| 2307 | `tui/src/components/editor.ts` | 08 |
-| 1714 | `tui/src/tui.ts` | 08 |
-| 1606 | `coding-agent/src/core/extensions/types.ts` | 07 |
-| 1577 | `coding-agent/src/core/session-manager.ts` | 06 |
-| 1504 | `ai/src/providers/openai-codex-responses.ts` | 02 |
-| 1400 | `tui/src/keys.ts` | 08 |
-| 1386 | `coding-agent/src/modes/interactive/components/tree-selector.ts` | 09 |
-| 1262 | `ai/src/providers/openai-completions.ts` | 02 |
-| 1261 | `coding-agent/src/modes/interactive/theme/theme.ts` | 09 |
-| 1251 | `ai/src/providers/anthropic.ts` | 02 |
-| 1195 | `coding-agent/src/core/settings-manager.ts` | 11 |
-| 1188 | `tui/src/utils.ts` | 08 |
-| 1135 | `coding-agent/src/core/extensions/runner.ts` | 07 |
-| 1070 | `ai/src/providers/amazon-bedrock.ts` | 02 |
-| 1064 | `agent/src/harness/agent-harness.ts` | 03 |
-| 1037 | `coding-agent/src/core/resource-loader.ts` | 07 / 12 |
-| 1017 | `coding-agent/src/modes/interactive/components/session-selector.ts` | 09 |
+| 17177 | `ai/src/models.generated.ts` | 02 |
+| 5165 | `coding-agent/src/modes/interactive/interactive-mode.ts` | 09 |
+| 2791 | `coding-agent/src/core/agent-session.ts` | 04 / 06 / 09 |
+| 2296 | `coding-agent/src/core/package-manager.ts` | 07 / 13 |
+| 1961 | `tui/src/components/editor.ts` | 08 |
+| 1534 | `tui/src/tui.ts` | 08 |
+| 1402 | `coding-agent/src/core/session-manager.ts` | 06 |
+| 1391 | `coding-agent/src/core/extensions/types.ts` | 07 |
+| 1348 | `ai/src/providers/openai-codex-responses.ts` | 02 |
+| 1285 | `tui/src/keys.ts` | 08 |
+| 1241 | `coding-agent/src/modes/interactive/components/tree-selector.ts` | 09 |
+| 1155 | `ai/src/providers/openai-completions.ts` | 02 |
+| 1151 | `ai/src/providers/anthropic.ts` | 02 |
+| 1134 | `coding-agent/src/modes/interactive/theme/theme.ts` | 09 |
+| 1053 | `tui/src/utils.ts` | 08 |
+| 1023 | `coding-agent/src/core/extensions/runner.ts` | 07 |
+| 1019 | `coding-agent/src/core/settings-manager.ts` | 11 |
+| 998 | `agent/src/harness/agent-harness.ts` | 03 |
+| 976 | `ai/src/providers/amazon-bedrock.ts` | 02 |
+| 922 | `coding-agent/src/core/resource-loader.ts` | 07 / 12 |
 
 ### 各包入口/契约文件
 
@@ -52,7 +52,7 @@
 | **AgentHarness** | pi-agent-core 的高层封装（`harness/`），自带 session 管理；coding-agent **未**用它，而是基于低层 `Agent` 自建 | 03 |
 | **agentLoop / runLoop** | agent 的核心循环（`agent-loop.ts:155`），发 `AgentEvent` 流 | 03 |
 | **AgentEvent** | 循环过程中产生的事件（assistant 文本、工具开始/结束、错误…），`types.ts:408` | 03 |
-| **AgentSession** | coding-agent 的中枢编排器（`agent-session.ts`, 3148 行）：把 Agent、SessionManager、compaction、工具、扩展粘在一起，对外发 `AgentSessionEvent` | 04 / 09 |
+| **AgentSession** | coding-agent 的中枢编排器（`agent-session.ts`, 2791 行）：把 Agent、SessionManager、compaction、工具、扩展粘在一起，对外发 `AgentSessionEvent` | 04 / 09 |
 | **AgentTool** | 运行时工具对象（name + execute），由 `ToolDefinition` 经 `wrapToolDefinition` 产生 | 05 |
 | **ToolDefinition** | 扩展声明工具的契约（`extensions/types.ts:435`），含 JSON schema 参数与 `execute` | 05 / 07 |
 | **内置工具** | 7 个：read / bash / edit / write / grep / find / ls（`core/tools/index.ts`） | 05 |
@@ -72,7 +72,7 @@
 
 ## C. 环境变量速查
 
-源码实测共 14 个 `PI_*` 变量（`grep -rhoE "process.env.PI_[A-Z_]+"`）。注意目录类变量名是**动态拼**的：`${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`，APP_NAME 默认 `pi`，所以是 `PI_CODING_AGENT_DIR`（`config.ts:495-496`）。
+源码中 `packages/*/src` 静态出现 21 个 `PI_*` 字符串，其中包含 provider 兼容开关、OAuth 回调配置、生成/注释中的 API 字符串，以及动态拼出的目录变量。下面列的是当前代码实际读取或设置的 pi 自有运行时环境变量；目录类变量名由 `${APP_NAME.toUpperCase()}_CODING_AGENT_*` 动态拼出，APP_NAME 默认 `pi`，所以是 `PI_CODING_AGENT_DIR` / `PI_CODING_AGENT_SESSION_DIR`（`config.ts:495-496`）。
 
 | 变量 | 作用 | 出处 |
 |------|------|------|
@@ -87,6 +87,8 @@
 | `PI_TELEMETRY` | 遥测开关 | `core/telemetry.ts` |
 | `PI_TIMING` | 输出计时信息 | — |
 | `PI_STARTUP_BENCHMARK` | 启动性能基准 | `cli/startup-ui.ts` |
+| `PI_CACHE_RETENTION` | provider prompt cache 保留策略兼容开关（`long`/默认 `short`） | `ai/providers/*` |
+| `PI_OAUTH_CALLBACK_HOST` | OAuth 本地回调监听 host | `ai/utils/oauth/*` |
 | `PI_DEBUG_REDRAW` | TUI 重绘调试 | tui |
 | `PI_TUI_DEBUG` | TUI 调试输出 | tui |
 | `PI_TUI_WRITE_LOG` | TUI 写日志 | tui |
@@ -147,8 +149,8 @@
 
 ```bash
 find packages/*/src -name "*.ts" | wc -l                    # 267
-wc -l packages/coding-agent/src/core/agent-session.ts        # 3148
-grep -rhoE "process.env.PI_[A-Z_]+" packages/*/src | sort -u # 14 个 PI_*
+wc -l packages/coding-agent/src/core/agent-session.ts        # 2791
+grep -rhoE "PI_[A-Za-z0-9_]+" packages/*/src | sort -u      # 静态 PI_* 字符串
 grep -n "CURRENT_SESSION_VERSION" packages/coding-agent/src/core/session-manager.ts
 ```
 

@@ -191,7 +191,7 @@ flowchart TD
 
 | 文件 | 行数 | 职责 |
 |------|------|------|
-| `packages/coding-agent/src/core/settings-manager.ts` | 1195 | `Settings` + 全局/项目深合并 + 信任门控 |
+| `packages/coding-agent/src/core/settings-manager.ts` | 1019 | `Settings` + 全局/项目深合并 + 信任门控 |
 | `packages/coding-agent/src/core/model-registry.ts` | 992 | 模型统一视图 + `getApiKeyAndHeaders`(703) |
 | `packages/coding-agent/src/core/model-resolver.ts` | 681 | 模型字符串解析（`findInitialModel` 527） |
 | `packages/coding-agent/src/core/auth-storage.ts` | 542 | `auth.json` 凭证 + OAuth 刷新 |

@@ -14,10 +14,10 @@ graph TB
     loader["loader.ts (677)<br/>用 jiti 加载 TS 模块<br/>→ Extension 对象"]
     api["ExtensionAPI (loader.ts:206+)<br/>on/registerTool/registerCommand/...<br/>扩展调用它来注册能力"]
     runtime["ExtensionRuntime (loader.ts:148)<br/>动作方法：sendMessage/setModel/...<br/>绑定后才可用"]
-    runner["runner.ts (1135)<br/>ExtensionRunner<br/>把事件顺序派发给 handlers"]
-    types["types.ts (1606)<br/>~30 种事件 + ToolDefinition<br/>+ ExtensionContext"]
-    rl["resource-loader.ts (1037)<br/>发现扩展路径 + 调 loader"]
-    pm["package-manager.ts (2588)<br/>安装 npm/git/local 包"]
+    runner["runner.ts (1023)<br/>ExtensionRunner<br/>把事件顺序派发给 handlers"]
+    types["types.ts (1391)<br/>30 种事件 + ToolDefinition<br/>+ ExtensionContext"]
+    rl["resource-loader.ts (922)<br/>发现扩展路径 + 调 loader"]
+    pm["package-manager.ts (2296)<br/>安装 npm/git/local 包"]
 
     rl --> loader
     loader --> api
@@ -30,13 +30,13 @@ graph TB
 
 | 文件 | 行 | 职责 |
 |------|-----|------|
-| `extensions/types.ts` | 1606 | 全部事件类型、`ToolDefinition`、`ExtensionContext`、`ExtensionAPI` 接口 |
-| `extensions/loader.ts` | 677 | jiti 加载、`createExtensionAPI`、`createExtensionRuntime` |
-| `extensions/runner.ts` | 1135 | `ExtensionRunner`：事件派发引擎 |
-| `extensions/index.ts` | 178 | 对外门面 re-export |
-| `extensions/wrapper.ts` | 30 | 把注册的工具包成 AgentTool |
-| `resource-loader.ts` | 1037 | 发现扩展/技能/命令并加载 |
-| `package-manager.ts` | 2588 | 安装/更新/卸载扩展包 |
+| `extensions/types.ts` | 1391 | 全部事件类型、`ToolDefinition`、`ExtensionContext`、`ExtensionAPI` 接口 |
+| `extensions/loader.ts` | 595 | jiti 加载、`createExtensionAPI`、`createExtensionRuntime` |
+| `extensions/runner.ts` | 1023 | `ExtensionRunner`：事件派发引擎 |
+| `extensions/index.ts` | 177 | 对外门面 re-export |
+| `extensions/wrapper.ts` | 27 | 把注册的工具包成 AgentTool |
+| `resource-loader.ts` | 922 | 发现扩展/技能/命令并加载 |
+| `package-manager.ts` | 2296 | 安装/更新/卸载扩展包 |
 
 ---
 
@@ -188,7 +188,7 @@ graph LR
 
 ## 7. package-manager：安装扩展
 
-`DefaultPackageManager`（`package-manager.ts:775`，2588 行的大文件）负责把扩展包装到本地。支持三种来源（`parseSource`，`type: "npm" | "git" | "local"`，第 90 行附近）：
+`DefaultPackageManager`（`package-manager.ts:775`，2296 行的大文件）负责把扩展包装到本地。支持三种来源（`parseSource`，`type: "npm" | "git" | "local"`，第 90 行附近）：
 
 ```mermaid
 %%{init: {'theme': 'neutral'}}%%
@@ -216,12 +216,12 @@ flowchart TD
 
 | 文件 | 行数 | 职责 |
 |------|------|------|
-| `packages/coding-agent/src/core/extensions/types.ts` | 1606 | 事件类型 + `ToolDefinition` + `ExtensionContext`/`ExtensionAPI` |
-| `packages/coding-agent/src/core/extensions/runner.ts` | 1135 | `ExtensionRunner` 事件派发（`emit` 736、专用 emit） |
+| `packages/coding-agent/src/core/extensions/types.ts` | 1391 | 事件类型 + `ToolDefinition` + `ExtensionContext`/`ExtensionAPI` |
+| `packages/coding-agent/src/core/extensions/runner.ts` | 1023 | `ExtensionRunner` 事件派发（`emit`、专用 emit） |
 | `packages/coding-agent/src/core/extensions/loader.ts` | 677 | jiti 加载、`createExtensionAPI`(206)、`createExtensionRuntime`(148) |
-| `packages/coding-agent/src/core/resource-loader.ts` | 1037 | 扩展/技能/命令发现与加载 |
-| `packages/coding-agent/src/core/package-manager.ts` | 2588 | npm/git/local 包安装（`DefaultPackageManager` 775） |
-| `packages/coding-agent/src/config.ts` | 567 | `CONFIG_DIR_NAME`(491)、`getDefaultAgentDir`(520) |
+| `packages/coding-agent/src/core/resource-loader.ts` | 922 | 扩展/技能/命令发现与加载 |
+| `packages/coding-agent/src/core/package-manager.ts` | 2296 | npm/git/local 包安装（`DefaultPackageManager` 775） |
+| `packages/coding-agent/src/config.ts` | 507 | `CONFIG_DIR_NAME`、`getDefaultAgentDir` |
 
 ---
 

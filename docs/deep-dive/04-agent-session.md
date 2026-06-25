@@ -1,6 +1,6 @@
 # 04 · AgentSession：编码 Agent 的总装与编排
 
-> 一句话：`createAgentSession()` 是一条**装配流水线**——把鉴权、模型、设置、会话存储、资源加载、扩展、工具全部接到一个 `Agent` 上，再用 `AgentSession`（3148 行）这个**总编排器**包起来，对外提供 prompt / 压缩 / 分支 / 重试 / bash / 扩展绑定等一切交互能力。
+> 一句话：`createAgentSession()` 是一条**装配流水线**——把鉴权、模型、设置、会话存储、资源加载、扩展、工具全部接到一个 `Agent` 上，再用 `AgentSession`（2791 行）这个**总编排器**包起来，对外提供 prompt / 压缩 / 分支 / 重试 / bash / 扩展绑定等一切交互能力。
 
 第 03 章的 `Agent` 是发动机；这一章的 `AgentSession` 是整辆车——仪表盘、变速箱、油路全在这里。
 
@@ -82,7 +82,7 @@ sequenceDiagram
 
 ---
 
-## 3. AgentSession：3148 行里装了什么
+## 3. AgentSession：2791 行里装了什么
 
 `AgentSession`（`agent-session.ts:265`）是全系统**最大的协调类**。构造函数（334）做两件根本的事：保存所有依赖，然后 `this._unsubscribeAgent = this.agent.subscribe(this._handleAgentEvent)`（352）——**订阅 Agent 的事件流**，这是持久化和 UI 更新的总开关。
 
@@ -226,8 +226,8 @@ sequenceDiagram
 | 文件 | 行数 | 职责 |
 |------|------|------|
 | `packages/coding-agent/src/core/sdk.ts` | 399 | `createAgentSession()` 总装 + streamFn 包装 |
-| `packages/coding-agent/src/core/agent-session.ts` | 3148 | `AgentSession` 总编排器（对话/压缩/分支/重试/bash/扩展） |
-| `packages/coding-agent/src/core/session-manager.ts` | 1577 | 会话持久化与分支树（第 06 章详解） |
+| `packages/coding-agent/src/core/agent-session.ts` | 2791 | `AgentSession` 总编排器（对话/压缩/分支/重试/bash/扩展） |
+| `packages/coding-agent/src/core/session-manager.ts` | 1402 | 会话持久化与分支树（第 06 章详解） |
 | `packages/coding-agent/src/core/settings-manager.ts` | — | 设置读取（第 11 章详解） |
 | `packages/coding-agent/src/core/model-registry.ts` | — | 模型 + 鉴权状态（第 11 章详解） |
 | `packages/coding-agent/src/core/resource-loader.ts` | — | 扩展/技能/命令加载（第 07/12 章详解） |

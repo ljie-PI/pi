@@ -1,6 +1,6 @@
 # 09 · 交互模式：把 AgentSession 接到终端
 
-> 一句话：`InteractiveMode`（5731 行，全仓最大文件）是交互式 CLI 的"视图控制器"——它 `new TUI()` 建终端、订阅 `AgentSession` 的事件流，把每个 `AgentSessionEvent` 翻译成 TUI 组件的增删改，并把用户输入（斜杠命令、消息、快捷键）转成 `AgentSession` 的方法调用。
+> 一句话：`InteractiveMode`（5165 行，最大的手写文件）是交互式 CLI 的"视图控制器"——它 `new TUI()` 建终端、订阅 `AgentSession` 的事件流，把每个 `AgentSessionEvent` 翻译成 TUI 组件的增删改，并把用户输入（斜杠命令、消息、快捷键）转成 `AgentSession` 的方法调用。
 
 第 04 章的 `AgentSession` 是业务大脑，第 08 章的 `pi-tui` 是渲染肌肉，这一章是把两者缝合的神经。`InteractiveMode` 文件头注释（`interactive-mode.ts:3`）说得直白："Handles TUI rendering and user interaction, delegating business logic to AgentSession."
 
@@ -16,7 +16,7 @@ graph LR
         editor["Editor 输入"]
         comps["各 *Component / *Selector"]
     end
-    subgraph Controller["Controller（InteractiveMode 5731）"]
+    subgraph Controller["Controller（InteractiveMode 5165）"]
         sub["subscribeToAgent (2713)"]
         he["handleEvent (2719)"]
         cmd["斜杠命令 / 快捷键分发"]
@@ -130,8 +130,8 @@ sequenceDiagram
 
 | 组件 | 行 | 作用 |
 |------|-----|------|
-| `tree-selector.ts` | 1386 | 会话树导航（分支/回溯，对接 `navigateTree`） |
-| `session-selector.ts` | 1017 | 历史会话选择/恢复 |
+| `tree-selector.ts` | 1241 | 会话树导航（分支/回溯，对接 `navigateTree`） |
+| `session-selector.ts` | 880 | 历史会话选择/恢复 |
 | `settings-selector.ts` | 810 | 设置面板 |
 | `config-selector.ts` | 628 | 配置项编辑 |
 | `model-selector.ts` | 337 | 模型选择 |
@@ -143,13 +143,13 @@ sequenceDiagram
 
 消息类组件（`assistant-message.ts` 147、`bash-execution.ts` 220、`diff.ts` 147、`compaction-summary-message.ts` 59、`branch-summary-message.ts` 58 等）负责把不同消息类型渲染成终端块。
 
-> 注意 `tree-selector.ts`（1386 行）的体量——会话树导航（第 06 章的分支/标签/撤销）的 UI 远比想象复杂，因为要可视化一棵可能很深的树并支持键盘导航。
+> 注意 `tree-selector.ts`（1241 行）的体量——会话树导航（第 06 章的分支/标签/撤销）的 UI 远比想象复杂，因为要可视化一棵可能很深的树并支持键盘导航。
 
 ---
 
 ## 6. 主题系统：可热重载
 
-主题在 `modes/interactive/theme/theme.ts`（1261 行）。设计要点：
+主题在 `modes/interactive/theme/theme.ts`（1134 行）。设计要点：
 
 - **`Theme` 类**（`theme.ts:323`）持有所有颜色/样式。
 - **全局 `theme` 代理**（`theme.ts:772`）：用 `Proxy` 包一个空对象，每次属性访问都重定向到 `globalThis[THEME_KEY]` 上的当前主题（773-778）。这样任何组件 `import { theme }` 后用 `theme.xxx`，切换主题时**无需重新获取引用**——代理自动指向新主题。未初始化访问会抛 "Theme not initialized. Call initTheme() first."
@@ -187,12 +187,12 @@ flowchart LR
 
 | 文件 | 行数 | 职责 |
 |------|------|------|
-| `packages/coding-agent/src/modes/interactive/interactive-mode.ts` | 5731 | 交互模式控制器（订阅事件、渲染、命令分发） |
-| `packages/coding-agent/src/modes/interactive/theme/theme.ts` | 1261 | 主题系统（`Theme`、全局代理、热重载） |
-| `packages/coding-agent/src/modes/interactive/components/tree-selector.ts` | 1386 | 会话树导航 UI |
-| `packages/coding-agent/src/modes/interactive/components/session-selector.ts` | 1017 | 历史会话选择 |
+| `packages/coding-agent/src/modes/interactive/interactive-mode.ts` | 5165 | 交互模式控制器（订阅事件、渲染、命令分发） |
+| `packages/coding-agent/src/modes/interactive/theme/theme.ts` | 1134 | 主题系统（`Theme`、全局代理、热重载） |
+| `packages/coding-agent/src/modes/interactive/components/tree-selector.ts` | 1241 | 会话树导航 UI |
+| `packages/coding-agent/src/modes/interactive/components/session-selector.ts` | 880 | 历史会话选择 |
 | `packages/coding-agent/src/modes/interactive/components/tool-execution.ts` | 377 | 工具调用渲染 |
-| `packages/coding-agent/src/core/agent-session.ts` | 3148 | `AgentSessionEvent`(125-149) + `subscribe`(691) |
+| `packages/coding-agent/src/core/agent-session.ts` | 2791 | `AgentSessionEvent` + `subscribe` |
 
 **关键常量/事实**：交互模式入口 `run()`（interactive-mode.ts:762）；主题热重载防抖 100ms（theme.ts:866-900）；全局 `theme` 用 Proxy 重定向（theme.ts:772）。
 

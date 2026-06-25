@@ -179,7 +179,7 @@ graph TB
 
 | | 交互模式 | 打印模式 | RPC 模式 |
 |--|---------|---------|---------|
-| 文件 | `interactive-mode.ts` (5731) | `print-mode.ts` (159) | `rpc-mode.ts` (774) |
+| 文件 | `interactive-mode.ts` (5165) | `print-mode.ts` (142) | `rpc-mode.ts` (671) |
 | 入口 | `InteractiveMode.run()` | `runPrintMode()` | `runRpcMode()` |
 | UI | 完整 TUI | 无（stdout） | 无（JSON stdout） |
 | 输入 | 键盘/编辑器 | CLI 参数 | stdin JSON 命令 |

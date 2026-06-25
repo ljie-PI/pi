@@ -114,7 +114,7 @@ sequenceDiagram
 
 ## 4. 上下文压缩：何时、怎么压
 
-对话越长，每次请求越贵、越慢，最终撑爆上下文窗口。`compaction.ts`（888 行）负责把旧历史折叠成摘要。
+对话越长，每次请求越贵、越慢，最终撑爆上下文窗口。`compaction.ts`（775 行）负责把旧历史折叠成摘要。
 
 ### 触发阈值
 
@@ -177,7 +177,7 @@ flowchart TD
 
 ## 6. 与底层 harness 的关系
 
-第 03 章提过，`pi-agent-core` 的 harness 也有一套压缩（`agent/.../compaction/compaction.ts`，762 行）和会话 repo。coding-agent 的这套是**平行的、更丰富的重实现**：harness 版偏通用，coding-agent 版加了树形分支、标签、撤销、版本迁移、自动压缩+溢出恢复等交互式 CLI 特有能力。`DEFAULT_COMPACTION_SETTINGS` 两边数值一致（都是 16384/20000），核心算法（找切点、估 token、生成摘要）思路相同。
+第 03 章提过，`pi-agent-core` 的 harness 也有一套压缩（`agent/.../compaction/compaction.ts`，680 行）和会话 repo。coding-agent 的这套是**平行的、更丰富的重实现**：harness 版偏通用，coding-agent 版加了树形分支、标签、撤销、版本迁移、自动压缩+溢出恢复等交互式 CLI 特有能力。`DEFAULT_COMPACTION_SETTINGS` 两边数值一致（都是 16384/20000），核心算法（找切点、估 token、生成摘要）思路相同。
 
 ---
 
@@ -185,10 +185,10 @@ flowchart TD
 
 | 文件 | 行数 | 职责 |
 |------|------|------|
-| `packages/coding-agent/src/core/session-manager.ts` | 1577 | 会话树持久化（JSONL、分支、标签、迁移、`buildSessionContext`） |
-| `packages/coding-agent/src/core/compaction/compaction.ts` | 888 | 压缩（阈值、token 估算、切点、摘要生成） |
-| `packages/coding-agent/src/core/agent-session.ts` | 3148 | `compact()`(1652) / `navigateTree()`(2713) / 自动压缩触发 |
-| `packages/agent/src/harness/compaction/compaction.ts` | 762 | harness 平行实现（数值一致） |
+| `packages/coding-agent/src/core/session-manager.ts` | 1402 | 会话树持久化（JSONL、分支、标签、迁移、`buildSessionContext`） |
+| `packages/coding-agent/src/core/compaction/compaction.ts` | 775 | 压缩（阈值、token 估算、切点、摘要生成） |
+| `packages/coding-agent/src/core/agent-session.ts` | 2791 | `compact()` / `navigateTree()` / 自动压缩触发 |
+| `packages/agent/src/harness/compaction/compaction.ts` | 680 | harness 平行实现（数值一致） |
 
 **关键常量**：`CURRENT_SESSION_VERSION = 3`（session-manager.ts:30）；`DEFAULT_COMPACTION_SETTINGS = { enabled:true, reserveTokens:16384, keepRecentTokens:20000 }`（compaction.ts:122-126）；token 估算 `chars/4`（compaction.ts:259 等）。
 

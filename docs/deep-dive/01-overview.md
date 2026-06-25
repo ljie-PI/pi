@@ -17,7 +17,7 @@
 | `@earendil-works/pi-coding-agent` | `packages/coding-agent` | 158 | 交互式编码 Agent CLI（模式、工具、扩展、会话） |
 | `@earendil-works/pi-tui` | `packages/tui` | 28 | 终端 UI 库（差分渲染、编辑器、按键） |
 
-> 规模实测：`find packages/*/src -type f -name "*.ts" | wc -l` = **267** 个源文件。其中最大的单文件是生成的 `packages/ai/src/models.generated.ts`（17179 行），最大的手写文件是 `packages/coding-agent/src/modes/interactive/interactive-mode.ts`（5731 行）。
+> 规模实测：`find packages/*/src -type f -name "*.ts" | wc -l` = **267** 个源文件。其中最大的单文件是生成的 `packages/ai/src/models.generated.ts`（17177 行），最大的手写文件是 `packages/coding-agent/src/modes/interactive/interactive-mode.ts`（5165 行）。
 
 ### 包之间的依赖方向
 
@@ -211,13 +211,13 @@ pi 的所有用户态数据在 `~/.pi/agent/`（可用环境变量 `PI_CODING_AG
 
 | 文件 | 行数 | 职责 |
 |------|------|------|
-| `packages/coding-agent/src/main.ts` | 837 | CLI 入口、参数→会话选项翻译、模式分发 |
-| `packages/coding-agent/src/core/sdk.ts` | 399 | `createAgentSession()` 总装配 |
-| `packages/coding-agent/src/config.ts` | 567 | 路径解析、安装方式探测、APP 常量 |
-| `packages/agent/src/agent-loop.ts` | 748 | Agent 核心循环 |
-| `packages/agent/src/types.ts` | 423 | Agent 运行时的全部契约类型 |
-| `packages/ai/src/types.ts` | 628 | LLM 消息/模型/工具/流事件类型 |
-| `packages/coding-agent/src/core/agent-session.ts` | 3148 | 会话编排核心类 `AgentSession` |
+| `packages/coding-agent/src/main.ts` | 753 | CLI 入口、参数→会话选项翻译、模式分发 |
+| `packages/coding-agent/src/core/sdk.ts` | 366 | `createAgentSession()` 总装配 |
+| `packages/coding-agent/src/config.ts` | 507 | 路径解析、安装方式探测、APP 常量 |
+| `packages/agent/src/agent-loop.ts` | 670 | Agent 核心循环 |
+| `packages/agent/src/types.ts` | 392 | Agent 运行时的全部契约类型 |
+| `packages/ai/src/types.ts` | 581 | LLM 消息/模型/工具/流事件类型 |
+| `packages/coding-agent/src/core/agent-session.ts` | 2791 | 会话编排核心类 `AgentSession` |
 
 ---
 
